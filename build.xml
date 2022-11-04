@@ -1,0 +1,103 @@
+<project name="SYSLOG Traffic Generator" basedir="." default="main">
+
+    <property name="src.dir"     value="src"/>
+
+    <property name="build.dir"   value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="lib.dir"     value="lib"/>
+    <property name="jar.dir"     value="${build.dir}/jar"/>
+    <property name="script.dir"     value="scripts"/>
+    <property name="config.dir"     value="conf"/>
+    <!-- application -->	
+    <property environment="env"/>
+    <property name="app.version"     value="${env.SYSLOG_VERSION}"/>
+    <property name="app.name"     value="SYSLOG_SIMULATOR"/>
+    <property name="bundle.dir"     value="${app.name}"/>
+
+    <property name="main-class"  value="com.adopt.main.main"/>
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <pathconvert property="classpath.name" pathsep=" ">
+		<path refid="classpath" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*.jar" to="lib/*.jar" />
+			</chainedmapper>
+		</mapper>
+    </pathconvert>
+
+    <!-- clean -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${app.name}"/>
+        <delete dir="${app.name}"/>
+ 	<delete file="${app.name}_${app.version}.tar.gz" />
+    </target>
+    
+    <!-- versoin -->
+    <target name="ver">
+	<replaceregexp file="${src.dir}/com/adopt/common/utils.java"
+                         match="VERSION = (.*);"
+                         replace="VERSION = &quot;${app.version}&quot;;"
+                         byline="true"/>	
+    </target>
+    
+    <!-- compile -->
+    <target name="compile" depends="ver">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+    </target>
+
+    <!-- generate JAR -->
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${app.name}.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+		<attribute name="Class-Path" value="${classpath.name}" />
+            </manifest>
+	    <!--<zipgroupfileset dir="${lib.dir}" />-->
+        </jar>
+    </target>
+   
+    <!-- create installable package -->
+    <target name="package" depends="bundle">
+	<echo message="creating installable release package !!"/>	
+	<mkdir dir="${bundle.dir}" />
+        <move todir="${bundle.dir}">
+            <fileset dir="${bundle.dir}">
+                <exclude name="${bundle.dir}"/>
+            </fileset>
+        </move>
+        <exec executable="tar" output="/dev/null" >
+            <arg value="-zcv"/>
+            <arg value="--file=${app.name}_${app.version}.tar.gz"/>
+            <arg value="${bundle.dir}"/>
+        </exec>
+
+	<delete dir="${bundle.dir}" />
+    </target>
+    
+    <!-- create bundle -->
+    <target name="bundle" depends="clean,jar">
+		<echo message="creating bundle !!"/>
+		<mkdir dir="${bundle.dir}" />
+		<copy file="${jar.dir}/${app.name}.jar" todir="${bundle.dir}"/>
+		<mkdir dir="${bundle.dir}/lib" />
+		<copy todir="${bundle.dir}/lib" >  
+  			<fileset dir="${lib.dir}" includes="**"/>
+		</copy>
+		<mkdir dir="${bundle.dir}/conf" />
+		<copy todir="${bundle.dir}/conf" >  
+  			<fileset dir="${config.dir}" includes="**"/>
+		</copy>
+		<copy file="${script.dir}/start.sh" todir="${bundle.dir}"/>
+		<chmod file="${bundle.dir}/start.sh" perm="+x"/>	
+    </target>
+
+    <target name="main" depends="clean,compile"/>
+
+</project>

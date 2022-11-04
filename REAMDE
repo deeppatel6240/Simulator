@@ -1,0 +1,44 @@
+=========================================================
+SYSLOG TRAFFIC GENERATOR
+=========================================================
+
+
+1) generate installable package
+	pre actions : 
+			- setup scripts/env.sh with compiler and ant incase system variables are different and wanted to have different versions
+			- set up application version and name in build.xml
+	
+	- run below commands
+		1) `soruce scripts/env.sh`
+		2) `ant package`
+	- alternatively you can run below command
+		1) sh make-package.sh
+
+2) configuration setup
+
+
+# the local port - will be used as local socket identifer to bind for pushing traffic
+# optional paramater - default=9090
+local_port=9090
+
+# peer host/ip - the receiver host to which traffic will be pushed
+# optional paramater - default=localhost
+receiver.host=localhost
+
+# peer udp port - the receiver port to which traffic will be pushed
+# optional paramater - default=8835
+receiver.port=8900
+
+# syslog directory/file which has input records to push in a load
+# optional paramater - default=data(relative path)
+syslog.dir=IN
+
+# indicator on whether input records in syslog files has newline seperator
+# optional paramater - default=true
+syslog.has.newline=true
+
+# indicator on whethere all given records must be used in load
+# this is increase efficiency on processing time in a load(turing OFF will consider the top record from given syslog file) for whole load traffic
+# optional paramater - default=false
+traffic.whole.records=false
+
