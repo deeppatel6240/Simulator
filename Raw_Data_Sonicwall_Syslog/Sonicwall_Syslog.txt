@@ -1,0 +1,1 @@
+<134>  id=Hyderabad_Hub_firewall sn=18C241399EB1 time="2022-08-29 17:02:08" fw=14.143.173.154 pri=6 c=262144 gcat=6 m=98 msg="Connection Opened" src=10.46.21.11:53890:X25 natSrc=14.140.185.207:8460 dst=13.107.6.163:443:X24 natDst=13.107.6.163:443 proto=tcp/https sent=52 app=11 n=4160529002 fw_action="NA" dpi=0
